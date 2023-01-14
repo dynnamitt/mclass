@@ -8,9 +8,8 @@ target_strings = [
     "name.1922.is.maximums.1.and.BBB.all the rest here",
 ]
 
-# split on white-space
-if __name__ == "__main__":
 
+def main():
     # test
     for ts in target_strings:
         print(ts)
@@ -29,3 +28,8 @@ if __name__ == "__main__":
         }
 
         print(o)
+
+
+# split on white-space
+if __name__ == "__main__":
+    main()
