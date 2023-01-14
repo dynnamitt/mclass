@@ -2,6 +2,7 @@ import re
 from typing import Optional, List, Tuple, Union
 from dataclasses import dataclass, field
 from datetime import date
+from pprint import pprint
 
 
 @dataclass()
@@ -26,41 +27,35 @@ class Date:
         return date(year, month, day)
 
 
-FST_DATE = Date("1970", "1", "1")
+def dated(line: str) -> Tuple:
+    full = r"(?P<year>\d{2,4})\.(?P<month>\d{2})\.(?P<day>\d{2})"
+    year = r"[^\d]{2,}(?P<just_year>\d{4})[^\d]{2,}"
+    r_ = f"{year}|{full}"
+    m = re.search(r_, line)
 
+    if m and m.group("year"):
+        suffix = line[m.end("day") :]
+        pre = line[: m.start("year")]
+        line_ = f"{pre} {suffix}"
+        d_ = Date(m.group("year"), m.group("month"), m.group("day"))
+        return (line_, d_)
 
-@dataclass()
-class DatedTree:
-    a: str
-    b: Optional[str] = None
-    dato: Optional[Date] = None
-
-
-def splitted(line: str, pattern) -> DatedTree:
-    xs = line.split(pattern)
-    if len(xs) == 2:
-        return DatedTree(xs[0], xs[1])
+    elif m and m.group("just_year"):
+        suffix = line[m.end("just_year") :]
+        pre = line[: m.start("just_year")]
+        line_ = f"{pre} {suffix}"
+        d_ = Date(m.group("just_year"), "1", "1")
+        return (line_, d_)
     else:
-        return DatedTree(line)
-
-
-def dated(pline: DatedTree) -> DatedTree:
-    line = pline.a
-    m = re.search(r"(\d{2,4})\.(\d{2})\.(\d{2,4})", line)
-    if m:
-        d = Date.from_tuple(m.group(1, 2, 3))
-        suffix = line[m.end(0) :]
-        pre = line[: m.start(0)]
-        return DatedTree(a=pre, b=suffix, dato=d)
-    else:
-        return DatedTree(pline.a, pline.b, FST_DATE)
+        return (line,)
 
 
 def words(line: str) -> List[str]:
-    seps = "_.-"
+    seps = r"_.- "
     for c in seps:
         line = line.removesuffix(c).removeprefix(c)
     seps_esc = [re.escape(c) for c in seps]
 
     regx = re.compile("|".join(seps_esc))
-    return re.split(regx, line)
+    ws = re.split(regx, line)
+    return [w for w in ws if len(w.replace(" ", "")) > 0]
