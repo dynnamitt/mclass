@@ -48,7 +48,6 @@ def organize_path(p: Path, base_path: Path) -> Tuple[str, dict]:
     min_path = p.relative_to(base_path)
 
     parent_names = [p.name for p in min_path.parents if p.name != ""]
-    print(parent_names)
     ext = p.suffix if p.is_file() else None
 
     name = p.name if p.is_dir() else p.stem
@@ -64,13 +63,13 @@ def organize_name(name: str, noise_regex: Optional[re.Pattern]) -> dict:
         keywords = name[m.end("day") :]
         pre = name[: m.start("year")]
         d_ = SDate(m.group("year"), m.group("month"), m.group("day"))
-        stem_meta = dict(site=strip_s(pre), date=d_)
+        stem_meta = dict(site=strip_s(pre), date=repr(d_))
 
     elif m and m.group("just_year"):
         keywords = name[m.end("just_year") :]
         pre = name[: m.start("just_year")]
         d_ = SDate(m.group("just_year"), "1", "1")
-        stem_meta = dict(site=strip_s(pre), date=d_)
+        stem_meta = dict(site=strip_s(pre), date=repr(d_))
 
     elif m and m.group("episode"):
         keywords = name[m.end("episode") :]
